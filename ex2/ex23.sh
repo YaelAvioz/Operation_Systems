@@ -1,7 +1,5 @@
 #!/bin/bash
 
-#Yael Avioz 207237421
-
 system_case(){
 	
 	# Loop through arguments and process them
