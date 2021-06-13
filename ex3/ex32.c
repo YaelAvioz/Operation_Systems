@@ -1,3 +1,5 @@
+// Yael Avioz 207237421
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -213,6 +215,7 @@ int IsFileC(struct dirent *pDirent)
   {
     return TRUE;
   }
+  return FALSE;
 }
 
 //search the file in sun folders
@@ -233,15 +236,6 @@ void sub_dir(char *dirName, char *user_name, const config_ds *const config, int 
       compile(filePath, user_name, config);
       closedir(dir);
       return;
-    }
-    else if (entry->d_type == DT_DIR)
-    {
-      if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
-        continue;
-      char path[MAXLEN];
-      memset(path, 0, MAXLEN);
-      snprintf(path, MAXLEN, "%s/%s", dirName, entry->d_name);
-      sub_dir(path, user_name, config, exist);
     }
   }
   closedir(dir);
