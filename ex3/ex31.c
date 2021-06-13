@@ -25,7 +25,7 @@ int is_equal(int file1, int file2, long len)
     //read the data to the buffer
     int read1 =read(file1, buffer_file1, MAXLEN);
     int read2 =read(file2, buffer_file2, MAXLEN);
-		if (read == -1 || read2 == -1) {
+		if (read1 == -1 || read2 == -1) {
 			return ERROR;
 		}
     for(i=0; i<len; i++)
@@ -56,7 +56,7 @@ int is_similar(int file1, int file2, long len1, long len2)
    //read the data to the buffer
    int read1 =read(file1, buffer_file1, MAXLEN);
    int read2 =read(file2, buffer_file2, MAXLEN);
-   if (read == -1 || read2 == -1) 
+   if (read1 == -1 || read2 == -1) 
    {
 		return ERROR;
    }
