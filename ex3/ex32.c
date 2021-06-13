@@ -1,5 +1,3 @@
-// Yael Avioz 207237421
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -26,6 +24,7 @@
 #define SIMILAR "75,SIMILAR"
 #define EXCELLENT "100,EXCELLENT"
 
+//define struct with the config file data
 typedef struct config_ds
 {
   char directory[MAXLEN];
@@ -34,6 +33,7 @@ typedef struct config_ds
   int res_fd;
 } config_ds;
 
+//define a struct with the results
 typedef struct result
 {
   char name[MAXLEN];
@@ -41,6 +41,7 @@ typedef struct result
   char toString[MAXLEN];
 } result;
 
+//convert the results to string
 void res_to_string(result *result)
 {
   strcpy(result->toString, result->name);
@@ -49,6 +50,7 @@ void res_to_string(result *result)
   strcat(result->toString, "\0");
 }
 
+//write the result
 void write_res(char *user_name, char *gradeAndReason, const config_ds *const config)
 {
   result res;
@@ -59,6 +61,7 @@ void write_res(char *user_name, char *gradeAndReason, const config_ds *const con
   write(config->res_fd, "\n", strlen("\n"));
 }
 
+//compare the files by using ex31
 void compare(char *user_name, const config_ds *const config)
 {
   char correctOutput[MAXLEN];
@@ -87,14 +90,17 @@ void compare(char *user_name, const config_ds *const config)
     {
       switch (WEXITSTATUS(status))
       {
+      //in case the files are equal
       case 1:
-        write_res(user_name, WRONG, config);
+        write_res(user_name, EXCELLENT , config);
         break;
+      //in case the files are diffrant
       case 2:
-        write_res(user_name, SIMILAR, config);
+        write_res(user_name, WRONG , config);
         break;
+      //in caase the files are similar
       case 3:
-        write_res(user_name, EXCELLENT, config);
+        write_res(user_name, SIMILAR , config);
         break;
       default:
         return;
@@ -103,6 +109,7 @@ void compare(char *user_name, const config_ds *const config)
   }
 }
 
+//run the compiled file
 void run(char *user_name, const config_ds *const config)
 {
   int pid2 = fork();
@@ -208,6 +215,7 @@ int IsFileC(struct dirent *pDirent)
   }
 }
 
+//search the file in sun folders
 void sub_dir(char *dirName, char *user_name, const config_ds *const config, int *exist)
 {
   DIR *dir;
@@ -270,6 +278,12 @@ int main(int argc, char *argv[])
   char *line;
   char lines[3][MAXLEN];
   int i = 0;
+  
+  //redirect the errors to errors.txt
+ 	int error = open("errors.txt", O_WRONLY | O_CREAT, 0666);
+	dup2(error, STDERR_FILENO);
+	close(error);
+  
   line = strtok(buffer, "\n");
   while (line != NULL)
   {
@@ -309,5 +323,7 @@ int main(int argc, char *argv[])
       }
     }
   }
+  unlink("output.txt");
+  unlink("compiled.out");
   closedir(dir);
 }
