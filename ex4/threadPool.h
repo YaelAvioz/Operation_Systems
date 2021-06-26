@@ -1,5 +1,3 @@
-//Yael Avioz 207237421
-
 #ifndef __THREAD_POOL__
 #define __THREAD_POOL__
 
@@ -15,23 +13,51 @@ typedef enum { RUNNING, FORCE_STOP, WAIT_STOP } state;
 typedef struct thread_pool {
   pthread_t *threads;
   OSQueue *queue;
-  int threadsNumber;
+  int numThreads;
   pthread_mutex_t lock;
   pthread_cond_t notify;
   state state;
 } ThreadPool;
+
 
 typedef struct {
     void (*func)(void *);
     void *args;
 } Task;
 
+/**
+ * Print error to stderr (fd number 2)
+ */
+void PrintError();
+
+/**
+ * Create a threadpool
+ * @param numOfThreads number of threads in the pool
+ * @return a pointer to the threadpool
+ */
 ThreadPool *tpCreate(int numOfThreads);
 
-void tpDestroy(ThreadPool *threadPool, int shouldWaitForTasks);
+/**
+ * Destroy the threadpool and free memory
+ * @param pool a pointer to the threadpool
+ * @param shouldWaitForTasks 0 if should wait, otherwise don't wait.
+ */
+void tpDestroy(ThreadPool *pool, int shouldWaitForTasks);
 
-int tpInsertTask(ThreadPool* threadPool, void (*computeFunc)(void*), void* param);
+/**
+ * Insert a new task to the queue
+ * @param pool a pointer to the threadpool
+ * @param computeFunc the function to compute
+ * @param param the parameters for the function
+ * @return in success 0, in failure a different number
+ */
+int tpInsertTask(ThreadPool *pool, void (*computeFunc)(void *), void *param);
 
-static void* startRoutine(void* param);
+/**
+ * The function executed by the thread
+ * @param param a pointer to the threadpool
+ * @return the result of the thread computation.
+ */
+static void *ThreadFunction(void *param);
 
 #endif
