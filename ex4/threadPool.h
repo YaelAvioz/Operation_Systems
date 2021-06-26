@@ -8,9 +8,8 @@
 #include <pthread.h>
 #include <unistd.h>
 #include "osqueue.h"
-#include <string.h>
 
-typedef enum { RUNNING, FORCE_STOP, WAIT_STOP } state;
+typedef enum {RUNNING, STOP, WAIT} state;
 
 typedef struct thread_pool {
   pthread_t *threads;
