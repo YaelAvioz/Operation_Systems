@@ -50,10 +50,10 @@ void tpDestroy(ThreadPool *threadPool, int shouldWaitForTasks) {
   //lock the threadPool
   pthread_mutex_lock(&threadPool->lock);
   if (shouldWaitForTasks == 0) {
-	  threadPool->state = FORCE_STOP;
+	  threadPool->state = STOP;
   }
   else {
-	  threadPool->state = WAIT_STOP;
+	  threadPool->state = WAIT;
   }
 
   //unblock all threads currently blocked on the specified condition variable cond
@@ -112,23 +112,24 @@ int tpInsertTask(ThreadPool* threadPool, void (*computeFunc)(void*), void* param
 static void* startRoutine(void* param) {
 
 	//set threadpool
-	ThreadPool* pool = (ThreadPool*)param;
+	ThreadPool* threadPool = (ThreadPool*)param;
 	//in case of faliure
-	if (pool == NULL) {
+	if (threadPool == NULL) {
 		exit(1);
 	}
-	while (pool->state == RUNNING || (!osIsQueueEmpty(pool->queue) && pool->state == WAIT_STOP)) {
-		pthread_mutex_lock(&pool->lock);
-		while (pool->state == RUNNING && osIsQueueEmpty(pool->queue)) {
-			pthread_cond_wait(&(pool->notify), &(pool->lock));
+	while (threadPool->state == RUNNING || (!osIsQueueEmpty(threadPool->queue) && threadPool->state == WAIT)) {
+		pthread_mutex_lock(&threadPool->lock);
+		while (threadPool->state == RUNNING && osIsQueueEmpty(threadPool->queue)) {
+			pthread_cond_wait(&(threadPool->notify), &(threadPool->lock));
 		}
-		Task* task = (Task*)osDequeue(pool->queue);
-		pthread_mutex_unlock(&pool->lock);
+		Task* task = (Task*)osDequeue(threadPool->queue);
+		pthread_mutex_unlock(&threadPool->lock);
 		if (task != NULL) {
 			((task->func))(task->args);
 			free(task);
 		}
 	}
-	pthread_mutex_unlock(&(pool->lock));
+	//unlock
+	pthread_mutex_unlock(&(threadPool->lock));
 	pthread_exit(NULL);
 }
